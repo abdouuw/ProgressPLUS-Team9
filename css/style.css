@@ -114,7 +114,7 @@ html[dir="ltr"] .pw-eye{position:absolute;right:12px;left:auto;background:none;b
 html[dir="rtl"] .shell{padding-right:var(--sidebar-w);padding-left:0;}
 html[dir="ltr"] .shell{padding-left:var(--sidebar-w);padding-right:0;}
 
-.sidebar{background:linear-gradient(180deg,var(--g-900) 0%,var(--g-950) 100%);position:fixed;top:0;width:var(--sidebar-w);height:100vh;z-index:200;display:flex;flex-direction:column;overflow-y:auto;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.15) transparent;}
+.sidebar{background:linear-gradient(180deg,var(--g-900) 0%,var(--g-950) 100%);position:fixed;top:0;width:var(--sidebar-w);height:100vh;height:100dvh;z-index:200;display:flex;flex-direction:column;overflow-y:auto;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.15) transparent;}
 .sidebar::-webkit-scrollbar{width:4px;}
 .sidebar::-webkit-scrollbar-track{background:transparent;}
 .sidebar::-webkit-scrollbar-thumb{background:rgba(255,255,255,.15);border-radius:2px;}
@@ -155,7 +155,23 @@ html[dir="ltr"] .nav-item.active::before{left:0;right:auto;border-radius:0 3px 3
 .sb-logout{display:flex;align-items:center;gap:8px;margin-top:var(--s2);padding:8px var(--s3);border-radius:var(--r-md);cursor:pointer;font-size:12px;font-weight:600;color:rgba(255,255,255,.38);transition:all var(--dur) var(--ease);}
 .sb-logout:hover{background:rgba(220,38,38,.15);color:#fca5a5;}
 
-.topbar { background: var(--white); border-bottom: 1px solid var(--gray-200); display: flex; align-items: center; padding: 0 var(--s6); gap: var(--s4); position: sticky; top: 0; z-index: 1000; box-shadow: var(--sh-xs); height: var(--topbar-h); flex-wrap: nowrap; width: 100%;box-sizing: border-box; }
+/* ─── TOPBAR ──────────────────────────────────────────────────────────────── */
+.topbar{
+  background:var(--white);
+  border-bottom:1px solid var(--gray-200);
+  display:flex;
+  align-items:center;
+  padding:0 var(--s6);
+  gap:var(--s4);
+  position:sticky;
+  top:0;
+  z-index:150;
+  box-shadow:var(--sh-xs);
+  height:var(--topbar-h);
+  flex-wrap:nowrap;
+  width:100%;
+  box-sizing:border-box;
+}
 .tb-page-title{font-size:17px;font-weight:800;color:var(--gray-900);letter-spacing:-.4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:280px;}
 .tb-breadcrumb{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--gray-400);font-family:var(--font-ui);}
 .tb-sep{color:var(--gray-300);}
@@ -174,6 +190,7 @@ html[dir="ltr"] .nav-item.active::before{left:0;right:auto;border-radius:0 3px 3
 .lang-btn:hover:not(.active){color:var(--gray-700);}
 .lang-div{color:var(--gray-300);font-size:11px;user-select:none;}
 
+/* ─── NOTIFICATION ───────────────────────────────────────────────��────────── */
 .notif-wrapper{position:relative;display:flex;align-items:center;}
 .notif-btn{width:34px;height:34px;background:var(--gray-100);border:1px solid var(--gray-200);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;color:var(--gray-600);cursor:pointer;transition:all var(--dur) var(--ease);flex-shrink:0;position:relative;}
 .notif-btn:hover{background:var(--g-50);border-color:var(--g-300);color:var(--g-600);}
@@ -181,10 +198,45 @@ html[dir="ltr"] .nav-item.active::before{left:0;right:auto;border-radius:0 3px 3
 html[dir="rtl"] .notif-badge{left:-3px;right:auto;}
 html[dir="ltr"] .notif-badge{right:-3px;left:auto;}
 .notif-badge.hidden{display:none;}
-.notif-dropdown { position: fixed;top: var(--topbar-h);width: 340px; max-height: calc(100vh - var(--topbar-h) - 16px); overflow-y: auto; background: var(--white); border: 1px solid var(--gray-200); border-radius: var(--r-2xl); box-shadow: var(--sh-xl); z-index: 9999; display: none; flex-direction: column; animation: dropIn .18s var(--ease); }
-html[dir="rtl"]  .notif-dropdown { right: var(--s4); left: auto; }
-html[dir="ltr"]  .notif-dropdown { left: auto; right: var(--s4); }
+
+/*
+ * FIX: position:fixed escapes any overflow:hidden parent.
+ * top is always below the topbar.
+ * Horizontal edge:
+ *   – RTL: the topbar-right group sits on the LEFT side of the bar
+ *     (because flex+RTL reverses order), so the bell is near the left
+ *     edge → anchor the dropdown to the LEFT.
+ *   – LTR: topbar-right is on the RIGHT side → anchor to the RIGHT.
+ * A small 16 px margin keeps it off the screen edge.
+ */
+.notif-dropdown{
+  position:fixed;
+  top:var(--topbar-h);
+  width:320px;
+  max-height:calc(100vh - var(--topbar-h) - 16px);
+  overflow-y:auto;
+  background:var(--white);
+  border:1px solid var(--gray-200);
+  border-radius:var(--r-2xl);
+  box-shadow:var(--sh-xl);
+  z-index:9999;
+  display:none;
+  flex-direction:column;
+  animation:dropIn .18s var(--ease);
+}
 .notif-dropdown.open{display:flex;}
+
+/* RTL – bell is on the logical-left (physical left in RTL layout) */
+html[dir="rtl"] .notif-dropdown{
+  left:var(--s4);
+  right:auto;
+}
+/* LTR – bell is on the logical-right (physical right in LTR layout) */
+html[dir="ltr"] .notif-dropdown{
+  right:var(--s4);
+  left:auto;
+}
+
 @keyframes dropIn{from{opacity:0;transform:translateY(-8px);}to{opacity:1;transform:translateY(0);}}
 .notif-hd{padding:var(--s4) var(--s5);border-bottom:1px solid var(--gray-100);display:flex;align-items:center;justify-content:space-between;}
 .notif-hd-title{font-size:13px;font-weight:800;color:var(--gray-900);}
@@ -635,9 +687,31 @@ html[dir="ltr"] .cal-table thead th{text-align:left;}
 .cp-item{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--gray-500);}
 .cp-dot{width:8px;height:8px;border-radius:50%;}
 
+/* ─── MOBILE DRAWER ───────────────────────────────────────────────────────── */
 .drawer-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:350;backdrop-filter:blur(2px);}
 .drawer-overlay.open{display:block;}
-.mobile-drawer{position:fixed;bottom:0;left:0;right:0;background:var(--white);border-radius:var(--r-3xl) var(--r-3xl) 0 0;z-index:400;padding:0 0 env(safe-area-inset-bottom,16px);transform:translateY(100%);transition:transform var(--dur-slow) var(--ease-spring);max-height:90vh;overflow-y:auto;box-shadow:0 -8px 40px rgba(0,0,0,.18);}
+
+.mobile-drawer{
+  position:fixed;
+  bottom:0;
+  left:0;
+  right:0;
+  background:var(--white);
+  border-radius:var(--r-3xl) var(--r-3xl) 0 0;
+  z-index:400;
+  /* FIX: dvh fills the full viewport on every phone; scroll inside */
+  max-height:92vh;
+  max-height:92dvh;
+  overflow-y:auto;
+  -webkit-overflow-scrolling:touch;
+  /* FIX: safe-area so nothing hides behind the iOS home bar */
+  padding-bottom:max(env(safe-area-inset-bottom,0px),16px);
+  transform:translateY(100%);
+  transition:transform var(--dur-slow) var(--ease-spring);
+  box-shadow:0 -8px 40px rgba(0,0,0,.18);
+  box-sizing:border-box;
+  width:100%;
+}
 .mobile-drawer.open{transform:translateY(0);}
 .drawer-handle{width:36px;height:4px;background:var(--gray-300);border-radius:var(--r-full);margin:12px auto 0;}
 .drawer-header{display:flex;align-items:center;justify-content:space-between;padding:var(--s4) var(--s5) var(--s3);border-bottom:1px solid var(--gray-100);}
@@ -662,6 +736,7 @@ html[dir="ltr"] .cal-table thead th{text-align:left;}
 .drawer-logout:hover{background:var(--fail-bg);}
 .drawer-logout-icon{width:36px;height:36px;border-radius:var(--r-lg);display:flex;align-items:center;justify-content:center;font-size:16px;background:var(--fail-bg);color:var(--fail-fg);}
 
+/* ─── BOTTOM NAV ──────────────────────────────────────────────────────────── */
 .bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;height:var(--bottom-nav-h);background:var(--white);border-top:1px solid var(--gray-200);z-index:300;box-shadow:0 -4px 20px rgba(0,0,0,.08);padding-bottom:env(safe-area-inset-bottom,0px);}
 .bn-container{display:flex;justify-content:space-around;align-items:center;height:100%;padding:0 var(--s2);}
 .bn-item{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:var(--s2) var(--s3);color:var(--gray-400);font-size:10px;font-weight:500;cursor:pointer;transition:all var(--dur) var(--ease);border-radius:var(--r-md);min-width:52px;border:none;background:none;font-family:inherit;}
@@ -671,11 +746,13 @@ html[dir="ltr"] .cal-table thead th{text-align:left;}
 .bn-more{position:relative;}
 .bn-more-dot{position:absolute;top:8px;right:8px;width:6px;height:6px;background:var(--g-400);border-radius:50%;border:2px solid var(--white);}
 
+/* ─── TOAST ───────────────────────────────────────────────────────────────── */
 .toast{position:fixed;bottom:calc(var(--s8) + var(--bottom-nav-h));background:var(--gray-900);color:#fff;padding:var(--s3) var(--s5);border-radius:var(--r-2xl);font-size:13px;font-weight:500;box-shadow:var(--sh-xl);z-index:9998;display:flex;align-items:center;gap:var(--s3);transform:translateY(20px);opacity:0;transition:all .3s var(--ease);pointer-events:none;max-width:320px;}
 html[dir="rtl"] .toast{left:var(--s8);right:auto;}
 html[dir="ltr"] .toast{right:var(--s8);left:auto;}
 .toast.show{transform:translateY(0);opacity:1;}
 
+/* ─── RESPONSIVE ──────────────────────────────────────────────────────────── */
 @media(max-width:1200px){
   .dash-lower{grid-template-columns:1fr;}
   .wallet-layout{grid-template-columns:1fr;}
@@ -699,14 +776,17 @@ html[dir="ltr"] .toast{right:var(--s8);left:auto;}
   html[dir="rtl"] .toast,html[dir="ltr"] .toast{left:var(--s4);right:var(--s4);bottom:calc(var(--s4) + var(--bottom-nav-h));max-width:none;}
   .cal-grid{grid-template-columns:1fr;}
   .exam-grid{grid-template-columns:1fr;}
-  html[dir="rtl"] .notif-dropdown{right:auto;left:var(--s4);}
-  html[dir="ltr"] .notif-dropdown{left:auto;right:var(--s4);}
-  .notif-dropdown{width:calc(100vw - 2rem);}
+  /* On mobile the dropdown should always be full-width and centred */
+  .notif-dropdown{
+    width:calc(100vw - 32px) !important;
+    left:16px !important;
+    right:16px !important;
+    max-height:70vh;
+  }
 }
 @media(max-width:768px){
   .table-container{border-radius:0;}
-  .gpa-row{grid-template-columns:1fr 80px 80px 55px 80px;gap:var(--s2);
-  .notif-dropdown { width: 90vw; right: 5vw !important; left:  5vw !important; };}
+  .gpa-row{grid-template-columns:1fr 80px 80px 55px 80px;gap:var(--s2);}
 }
 @media(max-width:640px){
   .login-container{grid-template-columns:1fr;margin:var(--s3);}
